@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 
 from elena.models import BooleanStatus, NumberStatus
 
@@ -22,9 +22,12 @@ def new_status():
     stati[name] = status
     return "Success!"
 
-@app.route("/<string:name>")
+@app.route("/<string:name>/")
 def query_status(name):
-    return str(stati[name].status)
+    try:
+        return str(stati[name].status)
+    except KeyError:
+        abort(404)
 
 if __name__ == "__main__":
     app.run()
