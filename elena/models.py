@@ -1,6 +1,7 @@
 class Status:
     """Base status class to inherit from"""
-    pass
+    def __init__(self, status):
+        self.status = status
 
 class BooleanStatus(Status):
     """Expresses a boolean status, e.g. up or down"""
