@@ -1,4 +1,4 @@
-from flask import Flask, request, abort
+from flask import Flask, request
 
 from elena.models import BooleanStatus, NumberStatus
 
@@ -27,7 +27,7 @@ def query_status(name):
     try:
         return str(stati[name].status)
     except KeyError:
-        abort(404)
+        return "ERROR: This status does not exist", 404
 
 if __name__ == "__main__":
     app.run()
