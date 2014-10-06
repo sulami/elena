@@ -1,7 +1,6 @@
 from flask import Flask, request
 
 from elena.models import BooleanStatus, NumberStatus
-from elena.util import debug
 
 from config import DEBUG
 
@@ -18,7 +17,6 @@ def index():
 def new_status():
     name = request.form['name']
     type = request.form['type']
-    debug("Adding new {} status {}".format(type, name, id))
     if type == "bool":
         status = BooleanStatus(True)
     stati[name] = status
