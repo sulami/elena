@@ -1,6 +1,6 @@
 from config import DEBUG
 
-def Debug(msg):
+def debug(msg):
     if DEBUG:
         print("[DEBUG]: " + msg)
 
