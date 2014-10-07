@@ -38,5 +38,6 @@ def query_status(name):
         return "ERROR: This status does not exist", 404
 
 if __name__ == "__main__":
+    init_db()
     app.run()
 
