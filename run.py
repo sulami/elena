@@ -21,9 +21,9 @@ def index():
 
 @app.route("/set/<string:name>/", methods=['POST'])
 def new_status(name):
-    type = request.form['type']
-    if type == "bool":
-        status = BooleanStatus(name, True)
+    value = request.form['value']
+    if value == "True" or value == "False":
+        status = BooleanStatus(name, bool(value))
         app.db.db_session.add(status)
         app.db.db_session.commit()
     return "Success!"

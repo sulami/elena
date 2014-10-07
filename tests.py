@@ -26,10 +26,10 @@ class StatusTestCase(BasicTestCase):
     """Test basic status operations"""
 
     def test_status_creation(self):
-        return self.client.post('/set/up/', data=dict(type="bool"))
+        return self.client.post('/set/up/', data=dict(value="True"))
 
     def test_status_existence(self):
-        self.client.post('/set/up/', data=dict(type="bool"))
+        self.client.post('/set/up/', data=dict(value="True"))
         rv = self.client.get('/get/up/')
         assert "True" == rv.data
 
