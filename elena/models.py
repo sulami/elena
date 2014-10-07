@@ -6,8 +6,7 @@ class Status(Database.Base):
     """Base status class to inherit from"""
 
     __tablename__ = 'stati'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique=True)
+    name = Column(String(50), primary_key=True)
 
     def __init__(self, name, status):
         self.name = name
