@@ -1,62 +1,25 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime
+from sqlalchemy import Column, String, DateTime
 
 from elena.database import Database
 
 class Status(Database.Base):
-    """Base status class to inherit from"""
+    """Base status class"""
 
     __tablename__ = 'stati'
     name = Column(String(50), primary_key=True)
+    status = Column(String(12))
     update_time = Column(DateTime)
 
     def __init__(self, name, status):
         self.name = name
-        self.set_status(status)
+        self.update(status)
 
     def __repr__(self):
-        return '{}: {}'.format(self.name, self.get_status())
+        return '[{}] {}: {}'.format(
+                                self.update_time.strftime('%Y-%m%d %H:%M:%S'),
+                                self.name, self.status)
 
-class BooleanStatus(Status):
-    """Expresses a boolean status, e.g. up or down"""
-
-    bstatus = Column(Boolean)
-
-    def get_status(self):
-        return self.bstatus
-
-    def set_status(self, status):
-        self.bstatus = status
-
-class NumberStatus(Status):
-    """Expresses a whole number status, e.g. number of pageviews"""
-
-    nstatus = Column(Integer)
-
-    def get_status(self):
-        return self.nstatus
-
-    def set_status(self, status):
-        self.nstatus = status
-
-class FloatStatus(Status):
-    """Expresses a floating point status, e.g. a response time"""
-
-    fstatus = Column(Float)
-
-    def get_status(self):
-        return self.fstatus
-
-    def set_status(self, status):
-        self.fstatus = status
-
-class StringStatus(Status):
-    """Expresses a string status, which can be anything"""
-
-    sstatus = Column(String(100))
-
-    def get_status(self):
-        return self.sstatus
-
-    def set_status(self, status):
-        self.sstatus = status
+    def update(self, status):
+        self.status = status
+        update_time = Column(DateTime)
 

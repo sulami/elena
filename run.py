@@ -3,8 +3,7 @@ import datetime
 from flask import Flask, request
 
 from elena.database import Database
-from elena.models import BooleanStatus, NumberStatus
-from elena.util import str_to_bool
+from elena.models import Status
 
 from config import DefaultConfig
 
@@ -25,28 +24,25 @@ def index():
 @app.route("/set/<string:name>/", methods=['POST'])
 def set_status(name):
     value = request.form['value']
-    if value == "True" or value == "False":
-        status = BooleanStatus.query.get(name)
-        app.db.session.commit()
-        if status:
-            status.bstatus = str_to_bool(value)
-        else:
-            status = BooleanStatus(name, str_to_bool(value))
-        status.update_time = datetime.datetime.now()
-        app.db.session.add(status)
-        app.db.session.commit()
+    status = Status.query.get(name)
+    if status:
+        status.update(value)
+    else:
+        status = Status(name, value)
+    app.db.session.add(status)
+    app.db.session.commit()
     return "Success!", 201
 
 @app.route("/get/<string:name>/")
 def get_status(name):
-    status = BooleanStatus.query.get(name)
+    status = Status.query.get(name)
     if status:
-        return str(status.get_status()), 200
+        return str(status.status), 200
     return "ERROR: This status does not exist", 404
 
 @app.route("/del/<string:name>/")
 def del_status(name):
-    status = BooleanStatus.query.get(name)
+    status = Status.query.get(name)
     if status:
         app.db.session.delete(status)
         app.db.session.commit()
@@ -56,7 +52,7 @@ def del_status(name):
 @app.route("/status/")
 def statusreport():
     # TODO elaborate status report
-    return "Number of Stati:" + str(len(BooleanStatus.query.all())), 200
+    return "Number of Stati:" + str(len(Status.query.all())), 200
 
 if __name__ == "__main__":
     init_db()
