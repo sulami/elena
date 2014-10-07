@@ -1,5 +1,3 @@
-import datetime
-
 from flask import Flask, request
 
 from elena.database import Database
