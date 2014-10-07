@@ -19,9 +19,8 @@ def shutdown_session(exception=None):
 def index():
     return "Are you still there?"
 
-@app.route("/new/", methods=['POST'])
-def new_status():
-    name = request.form['name']
+@app.route("/set/<string:name>/", methods=['POST'])
+def new_status(name):
     type = request.form['type']
     if type == "bool":
         status = BooleanStatus(name, True)
