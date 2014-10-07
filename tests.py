@@ -17,7 +17,7 @@ class BasicTestCase(unittest.TestCase):
         self.client = run.app.test_client()
 
     def tearDown(self):
-        run.app.db.db_session.remove()
+        run.app.db.session.remove()
 
     def test_server_up(self):
         return self.client.get('/')
@@ -36,6 +36,14 @@ class StatusTestCase(BasicTestCase):
     def test_status_nonexistence(self):
         rv = self.client.get('/get/notup/')
         assert 404 == rv.status_code
+
+    def test_status_update(self):
+        self.client.post('/set/up/', data=dict(value="True"))
+        rv = self.client.get('/get/up/')
+        assert "True" == rv.data
+        self.client.post('/set/up/', data=dict(value="False"))
+        rv = self.client.get('/get/up/')
+        assert "False" == rv.data
 
 if __name__ == "__main__":
     unittest.main()

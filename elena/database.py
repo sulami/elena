@@ -11,10 +11,11 @@ class Database:
 
     def __init__(self, uri):
         self.engine = create_engine(uri, convert_unicode=True)
-        self.db_session = scoped_session(sessionmaker(autocommit=False,
-                                                     autoflush=False,
-                                                     bind=self.engine))
-        self.Base.query = self.db_session.query_property()
+        self.session = scoped_session(sessionmaker(autocommit=False,
+                                                   autoflush=False,
+                                                   expire_on_commit=True,
+                                                   bind=self.engine))
+        self.Base.query = self.session.query_property()
 
         import elena.models
         self.Base.metadata.create_all(bind=self.engine)
