@@ -70,6 +70,32 @@ class StatusTestCase(BasicTestCase):
         rv = self.client.get('/get/up/')
         assert 404 == rv.status_code
 
+        rv = self.client.get('/del/up/')
+        assert 404 == rv.status_code
+
+class MetaTestCase(BasicTestCase):
+    """Test general function"""
+
+    def test_status_page(self):
+        rv = self.client.get('/status/')
+        assert "0" in rv.data
+
+        self.client.post('/set/up/', data=dict(value="True"))
+        rv = self.client.get('/status/')
+        assert "1" in rv.data
+
+        self.client.post('/set/down/', data=dict(value="False"))
+        rv = self.client.get('/status/')
+        assert "2" in rv.data
+
+        self.client.post('/set/down/', data=dict(value="True"))
+        rv = self.client.get('/status/')
+        assert "2" in rv.data
+
+        self.client.get('/del/down/')
+        rv = self.client.get('/status/')
+        assert "1" in rv.data
+
 if __name__ == "__main__":
     unittest.main()
 
