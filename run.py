@@ -35,11 +35,11 @@ def set_status(name):
     return "Success!"
 
 @app.route("/get/<string:name>/")
-def query_status(name):
-    try:
-        return str(BooleanStatus.query.get(name).get_status())
-    except AttributeError:
-        return "ERROR: This status does not exist", 404
+def get_status(name):
+    status = BooleanStatus.query.get(name)
+    if status:
+        return str(status.get_status())
+    return "ERROR: This status does not exist", 404
 
 if __name__ == "__main__":
     init_db()
