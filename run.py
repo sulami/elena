@@ -53,6 +53,11 @@ def del_status(name):
         return "Success!", 204
     return "ERROR: This status does not exist", 404
 
+@app.route("/status/")
+def statusreport():
+    # TODO elaborate status report
+    return "Number of Stati:" + str(len(BooleanStatus.query.all())), 200
+
 if __name__ == "__main__":
     init_db()
     app.run()
