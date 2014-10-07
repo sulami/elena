@@ -41,6 +41,15 @@ def get_status(name):
         return str(status.get_status()), 200
     return "ERROR: This status does not exist", 404
 
+@app.route("/del/<string:name>/")
+def del_status(name):
+    status = BooleanStatus.query.get(name)
+    if status:
+        app.db.session.delete(status)
+        app.db.session.commit()
+        return "Success!", 204
+    return "ERROR: This status does not exist", 404
+
 if __name__ == "__main__":
     init_db()
     app.run()

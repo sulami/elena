@@ -55,6 +55,20 @@ class StatusTestCase(BasicTestCase):
         assert "False" == rv.data
         assert 200 == rv.status_code
 
+    def test_status_deletion(self):
+        rv = self.client.post('/set/up/', data=dict(value="True"))
+        assert 201 == rv.status_code
+
+        rv = self.client.get('/get/up/')
+        assert "True" == rv.data
+        assert 200 == rv.status_code
+
+        rv = self.client.get('/del/up/')
+        assert 204 == rv.status_code
+
+        rv = self.client.get('/get/up/')
+        assert 404 == rv.status_code
+
 if __name__ == "__main__":
     unittest.main()
 
