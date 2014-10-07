@@ -29,10 +29,11 @@ def new_status():
         app.db.db_session.commit()
     return "Success!"
 
-@app.route("/<string:name>/")
+@app.route("/get/<string:name>/")
 def query_status(name):
     try:
-        return str(BooleanStatus.query.filter(BooleanStatus.name == name).first().get_status())
+        return str(BooleanStatus.query.filter(BooleanStatus.name == name)
+                   .first().get_status())
     except AttributeError:
         return "ERROR: This status does not exist", 404
 

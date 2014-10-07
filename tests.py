@@ -30,11 +30,11 @@ class StatusTestCase(BasicTestCase):
 
     def test_status_existence(self):
         self.client.post('/new/', data=dict(name="up", type="bool"))
-        rv = self.client.get('/up/')
+        rv = self.client.get('/get/up/')
         assert "True" == rv.data
 
     def test_status_nonexistence(self):
-        rv = self.client.get('/notup/')
+        rv = self.client.get('/get/notup/')
         assert 404 == rv.status_code
 
 if __name__ == "__main__":
