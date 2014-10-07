@@ -27,6 +27,7 @@ class StatusTestCase(BasicTestCase):
 
     def test_status_creation(self):
         return self.client.post('/set/up/', data=dict(value="True"))
+        assert 201 == rv.status_code
 
     def test_status_existence(self):
         rv = self.client.post('/set/up/', data=dict(value="True"))
