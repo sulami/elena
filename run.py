@@ -32,13 +32,13 @@ def set_status(name):
             status = BooleanStatus(name, str_to_bool(value))
         app.db.session.add(status)
         app.db.session.commit()
-    return "Success!"
+    return "Success!", 201
 
 @app.route("/get/<string:name>/")
 def get_status(name):
     status = BooleanStatus.query.get(name)
     if status:
-        return str(status.get_status())
+        return str(status.get_status()), 200
     return "ERROR: This status does not exist", 404
 
 if __name__ == "__main__":

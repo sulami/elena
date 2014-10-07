@@ -29,21 +29,31 @@ class StatusTestCase(BasicTestCase):
         return self.client.post('/set/up/', data=dict(value="True"))
 
     def test_status_existence(self):
-        self.client.post('/set/up/', data=dict(value="True"))
+        rv = self.client.post('/set/up/', data=dict(value="True"))
+        assert 201 == rv.status_code
+
         rv = self.client.get('/get/up/')
         assert "True" == rv.data
+        assert 200 == rv.status_code
 
     def test_status_nonexistence(self):
         rv = self.client.get('/get/notup/')
         assert 404 == rv.status_code
 
     def test_status_update(self):
-        self.client.post('/set/up/', data=dict(value="True"))
+        rv = self.client.post('/set/up/', data=dict(value="True"))
+        assert 201 == rv.status_code
+
         rv = self.client.get('/get/up/')
         assert "True" == rv.data
-        self.client.post('/set/up/', data=dict(value="False"))
+        assert 200 == rv.status_code
+
+        rv = self.client.post('/set/up/', data=dict(value="False"))
+        assert 201 == rv.status_code
+
         rv = self.client.get('/get/up/')
         assert "False" == rv.data
+        assert 200 == rv.status_code
 
 if __name__ == "__main__":
     unittest.main()
