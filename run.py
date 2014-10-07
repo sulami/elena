@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Flask, request
 
 from elena.database import Database
@@ -30,6 +32,7 @@ def set_status(name):
             status.bstatus = str_to_bool(value)
         else:
             status = BooleanStatus(name, str_to_bool(value))
+        status.update_time = datetime.datetime.now()
         app.db.session.add(status)
         app.db.session.commit()
     return "Success!", 201

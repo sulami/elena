@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float
+from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime
 
 from elena.database import Database
 
@@ -7,6 +7,7 @@ class Status(Database.Base):
 
     __tablename__ = 'stati'
     name = Column(String(50), primary_key=True)
+    update_time = Column(DateTime)
 
     def __init__(self, name, status):
         self.name = name
