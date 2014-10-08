@@ -1,6 +1,7 @@
 import time
 import unittest
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from threading import Thread
 
 from flask.json import loads
 from sqlalchemy import create_engine
@@ -175,20 +176,24 @@ class PullTestCase(BasicTestCase):
             # silence the server by overriding the logger
             pass
 
-    def test_pull(self):
+    def server_wait(self):
         server = HTTPServer(('', 5001), self.pullHandler)
         server.handle_request()
+        server.socket.close()
+
+    def test_pull(self):
+        server_thread = Thread(target=self.server_wait)
+        server_thread.start()
 
         self.client.post('/set/up/', data=dict(value="True"))
         rv = self.client.post('/atr/up/', data=dict(pull="True",
-                                                    pull_url="localhost:5001",
-                                                    pull_time="0"))
+                                            pull_url='http://localhost:5001',
+                                            pull_time="0"))
         assert 200 == rv.status_code
 
         rv = self.client.get('/get/up/')
         assert 200 == rv.status_code
-
-        server.socket.close()
+        assert "Toast" == loads(rv.data)['status']
 
 if __name__ == "__main__":
     unittest.main()

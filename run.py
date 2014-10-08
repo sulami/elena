@@ -42,6 +42,10 @@ def set_status(name):
 def get_status(name):
     status = Status.query.get(name)
     if status:
+        if status.pull:
+            status.pull_update()
+            app.db.session.add(status)
+            app.db.session.commit()
         return status.get(), 200
     return "ERROR: This status does not exist", 404
 
@@ -49,6 +53,10 @@ def get_status(name):
 def get_history(name):
     status = Status.query.get(name)
     if status:
+        if status.pull:
+            status.pull_update()
+            app.db.session.add(status)
+            app.db.session.commit()
         return status.get_history(), 200
     return "ERROR: This status does not exist", 404
 
@@ -94,7 +102,7 @@ def set_attr(name):
             status.pull_url = request.form['pull_url']
         if 'pull_time' in request.form:
             valid = True
-            status.pull_time = timedelta(int(request.form['pull_time']))
+            status.pull_time = timedelta(seconds=int(request.form['pull_time']))
     if not valid:
         return "ERROR: No valid attribute given", 400
     app.db.session.add(status)

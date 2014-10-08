@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from urllib2 import urlopen, Request
 
 from flask import jsonify
 from sqlalchemy import ( Column,
@@ -35,10 +36,6 @@ class Status(Database.Base):
     def __get__(self):
         return self.data_points.first()
 
-    def __pull__(self):
-        # TODO actually pull the status
-        pass
-
     def update(self, status):
         if not self.history:
             d = self.__get__()
@@ -48,9 +45,6 @@ class Status(Database.Base):
         self.data_points.append(DataPoint(self, status))
 
     def get(self):
-        if self.pull and (datetime.now() - self.__get__().update_time
-                          > self.pull_time):
-            self.__pull__()
         return self.__get__().get()
 
     def get_history(self):
@@ -59,10 +53,17 @@ class Status(Database.Base):
                                     in self.data_points.all()])
         return self.get()
 
+    def pull_update(self):
+        try:
+            self.update(urlopen(Request(self.pull_url), timeout=2).readline())
+        except:
+            self.update("Error pulling status update from {}"
+                        .format(self.pull_url))
+
     def set_pull(self, url, time):
         self.pull = True
         self.pull_url = url
-        self.pull_time = timedelta(time)
+        self.pull_time = timedelta(seconds=time)
 
     def set_push(self):
         self.pull = False
