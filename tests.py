@@ -151,6 +151,7 @@ class HistoryTestCase(BasicTestCase):
 
         rv = self.client.post('/atr/up/', data=dict(history="False"))
         assert 200 == rv.status_code
+        rv = self.client.get('/his/up/')
         assert "True" not in rv.data
         assert "False" in rv.data
 

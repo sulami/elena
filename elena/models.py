@@ -50,13 +50,12 @@ class Status(Database.Base):
             # TODO pull status
             pass
         status = self.data_points.first()
-        return jsonify(name=self.name, status=status.status,
-                       update_time=status.update_time)
+        return status.get()
 
     def get_history(self):
         if self.history:
-            # TODO create history somehow
-            pass
+            return jsonify(history=[d.serialize() for d
+                                    in self.data_points.all()])
         return self.get()
 
     def set_pull(self, url, time):
@@ -94,4 +93,7 @@ class DataPoint(Database.Base):
     def get(self):
         return jsonify(name=self.status_name, status=self.status,
                        update_time=self.update_time)
+
+    def serialize(self):
+        return { 'status': self.status, 'update_time': self.update_time }
 
