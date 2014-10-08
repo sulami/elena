@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import jsonify
 from sqlalchemy import ( Column,
@@ -39,11 +39,6 @@ class Status(Database.Base):
         # TODO actually pull the status
         pass
 
-    def set_history(self, history):
-        self.history = history
-        if not history:
-            self.data_points = self.__get__()
-
     def update(self, status):
         if not self.history:
             d = self.__get__()
@@ -67,7 +62,7 @@ class Status(Database.Base):
     def set_pull(self, url, time):
         self.pull = True
         self.pull_url = url
-        self.pull_time = time
+        self.pull_time = timedelta(time)
 
     def set_push(self):
         self.pull = False

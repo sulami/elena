@@ -1,5 +1,6 @@
 import time
 import unittest
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 from flask.json import loads
 from sqlalchemy import create_engine
@@ -158,6 +159,36 @@ class HistoryTestCase(BasicTestCase):
         assert "history" not in rv.data
         assert "True" not in rv.data
         assert "False" == loads(rv.data)['status']
+
+class PullTestCase(BasicTestCase):
+    """Test the status pull functionality"""
+
+    class pullHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write("Toast")
+            return
+
+        def log_message(self, format, *args):
+            # silence the server by overriding the logger
+            pass
+
+    def test_pull(self):
+        server = HTTPServer(('', 5001), self.pullHandler)
+        server.handle_request()
+
+        self.client.post('/set/up/', data=dict(value="True"))
+        rv = self.client.post('/atr/up/', data=dict(pull="True",
+                                                    pull_url="localhost:5001",
+                                                    pull_time="0"))
+        assert 200 == rv.status_code
+
+        rv = self.client.get('/get/up/')
+        assert 200 == rv.status_code
+
+        server.socket.close()
 
 if __name__ == "__main__":
     unittest.main()

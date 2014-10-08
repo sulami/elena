@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Flask, request
 
 from elena.database import Database
@@ -62,10 +64,39 @@ def del_status(name):
 @app.route("/atr/<string:name>/", methods=['POST'])
 def set_attr(name):
     status = Status.query.get(name)
+    valid = False
     if not status:
         return "ERROR: This status does not exist", 404
     if 'history' in request.form:
+        valid = True
         status.history = str_to_bool(request.form['history'])
+    if 'pull' in request.form:
+        valid = True
+        if str_to_bool(request.form['pull']):
+            if 'pull_url' in request.form:
+                pu = request.form['pull_url']
+            elif status.pull_url:
+                pu = status.pull_url
+            else:
+                return "ERROR: No URL to pull from given or present", 400
+            if 'pull_time' in request.form:
+                pt = int(request.form['pull_time'])
+            elif status.pull_time:
+                pt = status.pull_time
+            else:
+                return "ERROR: No pull interval given or present", 400
+            status.set_pull(pu, pt)
+        else:
+            status.set_push()
+    else:
+        if 'pull_url' in request.form:
+            valid = True
+            status.pull_url = request.form['pull_url']
+        if 'pull_time' in request.form:
+            valid = True
+            status.pull_time = timedelta(int(request.form['pull_time']))
+    if not valid:
+        return "ERROR: No valid attribute given", 400
     app.db.session.add(status)
     app.db.session.commit()
     return "Success!", 200
