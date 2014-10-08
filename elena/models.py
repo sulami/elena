@@ -20,7 +20,7 @@ class Status(Database.Base):
 
     def __repr__(self):
         return '[{}] {}: {}'.format(
-                                self.update_time.strftime('%Y-%m%d %H:%M:%S'),
+                                self.update_time.strftime('%Y-%m-%d %H:%M:%S'),
                                 self.name, self.status)
 
     def set_pull(self, url, time):
