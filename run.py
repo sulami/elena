@@ -35,7 +35,7 @@ def set_status(name):
 def get_status(name):
     status = Status.query.get(name)
     if status:
-        return str(status.status), 200
+        return str(status.get()), 200
     return "ERROR: This status does not exist", 404
 
 @app.route("/del/<string:name>/")
