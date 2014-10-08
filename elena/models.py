@@ -19,7 +19,8 @@ class Status(Database.Base):
     name = Column(String(50), primary_key=True)
     history = Column(Boolean)
     data_points = relationship('DataPoint', order_by=desc('update_time'),
-                               lazy='dynamic')
+                               lazy='dynamic',
+                               cascade='all, delete, delete-orphan')
     pull = Column(Boolean)
     pull_url = Column(String(200))
     pull_time = Column(Interval)
@@ -31,18 +32,17 @@ class Status(Database.Base):
     def __repr__(self):
         return self.data_points.first().__repr__()
 
-    def set_pull(self, url, time):
-        self.pull = True
-        self.pull_url = url
-        self.pull_time = time
-
-    def set_push(self):
-        self.pull = False
-        self.pull_url = None
-        self.pull_time = None
+    def set_history(self, history):
+        self.history = history
+        if not history:
+            self.data_points = self.data_points.first()
 
     def update(self, status):
-        # TODO history management
+        if not self.history:
+            d = self.data_points.first()
+            if d:
+                d.update(status)
+                return
         self.data_points.append(DataPoint(self, status))
 
     def get(self):
@@ -54,8 +54,20 @@ class Status(Database.Base):
                        update_time=status.update_time)
 
     def get_history(self):
-        # TODO return history if needed
-        pass
+        if self.history:
+            # TODO create history somehow
+            pass
+        return self.get()
+
+    def set_pull(self, url, time):
+        self.pull = True
+        self.pull_url = url
+        self.pull_time = time
+
+    def set_push(self):
+        self.pull = False
+        self.pull_url = None
+        self.pull_time = None
 
 class DataPoint(Database.Base):
     """datapoint for history creation"""
@@ -68,11 +80,18 @@ class DataPoint(Database.Base):
 
     def __init__(self, status, value):
         self.status_id = status.name
-        self.status = value
-        self.update_time = datetime.now()
+        self.update(value)
 
     def __repr__(self):
         return '[{}] {}: {}'.format(
                                 self.update_time.strftime('%Y-%m-%d %H:%M:%S'),
                                 self.status_name, self.status)
+
+    def update(self, value):
+        self.status = value
+        self.update_time = datetime.now()
+
+    def get(self):
+        return jsonify(name=self.status_name, status=self.status,
+                       update_time=self.update_time)
 

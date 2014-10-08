@@ -2,6 +2,7 @@ from flask import Flask, request
 
 from elena.database import Database
 from elena.models import Status
+from elena.util import str_to_bool
 
 from config import DefaultConfig
 
@@ -42,6 +43,13 @@ def get_status(name):
         return status.get(), 200
     return "ERROR: This status does not exist", 404
 
+@app.route("/his/<string:name>/")
+def get_history(name):
+    status = Status.query.get(name)
+    if status:
+        return status.get_history(), 200
+    return "ERROR: This status does not exist", 404
+
 @app.route("/del/<string:name>/")
 def del_status(name):
     status = Status.query.get(name)
@@ -50,6 +58,17 @@ def del_status(name):
         app.db.session.commit()
         return "Success!", 204
     return "ERROR: This status does not exist", 404
+
+@app.route("/atr/<string:name>/", methods=['POST'])
+def set_attr(name):
+    status = Status.query.get(name)
+    if not status:
+        return "ERROR: This status does not exist", 404
+    if 'history' in request.form:
+        status.history = str_to_bool(request.form['history'])
+    app.db.session.add(status)
+    app.db.session.commit()
+    return "Success!", 200
 
 @app.route("/status/")
 def statusreport():

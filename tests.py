@@ -6,7 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-from config import TestConfig
 from elena.database import Database
 from run import app, init_db
 
@@ -108,6 +107,52 @@ class MetaTestCase(BasicTestCase):
         self.client.get('/del/down/')
         rv = self.client.get('/status/')
         assert "1" in rv.data
+
+class HistoryTestCase(BasicTestCase):
+    """Test the status history functionality"""
+
+    def test_history_disabled(self):
+        rv = self.client.post('/set/up/', data=dict(value="True"))
+        assert 201 == rv.status_code
+
+        rv = self.client.get('/get/up/')
+        assert "True" == loads(rv.data)['status']
+        assert 200 == rv.status_code
+
+        rv = self.client.post('/set/up/', data=dict(value="False"))
+        assert 201 == rv.status_code
+
+        rv = self.client.get('/get/up/')
+        assert "False" == loads(rv.data)['status']
+        assert 200 == rv.status_code
+        assert "True" not in rv.data
+
+    def test_check_history(self):
+        self.client.post('/set/up/', data=dict(value="True"))
+        rv = self.client.post('/atr/up/', data=dict(history="True"))
+        assert 200 == rv.status_code
+
+        self.client.post('/set/up/', data=dict(value="False"))
+        rv = self.client.get('/his/up/')
+        assert 200 == rv.status_code
+        assert "True" in rv.data
+        assert "False" in rv.data
+
+    def test_delete_history(self):
+        self.client.post('/set/up/', data=dict(value="True"))
+        rv = self.client.post('/atr/up/', data=dict(history="True"))
+        assert 200 == rv.status_code
+
+        self.client.post('/set/up/', data=dict(value="False"))
+        rv = self.client.get('/his/up/')
+        assert 200 == rv.status_code
+        assert "True" in rv.data
+        assert "False" in rv.data
+
+        rv = self.client.post('/atr/up/', data=dict(history="False"))
+        assert 200 == rv.status_code
+        assert "True" not in rv.data
+        assert "False" in rv.data
 
 if __name__ == "__main__":
     unittest.main()
