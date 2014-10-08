@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from flask import jsonify
 from sqlalchemy import Column, String, DateTime, Boolean, Interval
 
 from elena.database import Database
@@ -41,5 +43,6 @@ class Status(Database.Base):
         if self.pull and datetime.now() - self.update_time > self.pull_time:
             # TODO pull status
             pass
-        return self.status
+        return jsonify(name=self.name, status=self.status,
+                       update_time=self.update_time)
 

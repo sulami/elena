@@ -1,6 +1,7 @@
 import time
 import unittest
 
+from flask.json import loads
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -35,7 +36,7 @@ class StatusTestCase(BasicTestCase):
         assert 201 == rv.status_code
 
         rv = self.client.get('/get/up/')
-        assert "True" == rv.data
+        assert "True" == loads(rv.data)['status']
         assert 200 == rv.status_code
 
     def test_status_nonexistence(self):
@@ -47,14 +48,14 @@ class StatusTestCase(BasicTestCase):
         assert 201 == rv.status_code
 
         rv = self.client.get('/get/up/')
-        assert "True" == rv.data
+        assert "True" == loads(rv.data)['status']
         assert 200 == rv.status_code
 
         rv = self.client.post('/set/up/', data=dict(value="False"))
         assert 201 == rv.status_code
 
         rv = self.client.get('/get/up/')
-        assert "False" == rv.data
+        assert "False" == loads(rv.data)['status']
         assert 200 == rv.status_code
 
     def test_status_deletion(self):
@@ -62,7 +63,7 @@ class StatusTestCase(BasicTestCase):
         assert 201 == rv.status_code
 
         rv = self.client.get('/get/up/')
-        assert "True" == rv.data
+        assert "True" == loads(rv.data)['status']
         assert 200 == rv.status_code
 
         rv = self.client.get('/del/up/')
@@ -76,12 +77,12 @@ class StatusTestCase(BasicTestCase):
 
     def test_status_timestamp(self):
         self.client.post('/set/up/', data=dict(value="True"))
-        old = self.client.get('/').data
+        old = loads(self.client.get('/get/up/').data)['update_time']
 
         time.sleep(1) # Ensure we get a different timestamp
 
         self.client.post('/set/up/', data=dict(value="True"))
-        new = self.client.get('/').data
+        new = loads(self.client.get('/get/up/').data)['update_time']
 
         assert old != new
 
