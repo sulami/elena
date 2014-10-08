@@ -125,7 +125,9 @@ class HistoryTestCase(BasicTestCase):
         rv = self.client.get('/get/up/')
         assert "False" == loads(rv.data)['status']
         assert 200 == rv.status_code
+        assert "history" not in rv.data
         assert "True" not in rv.data
+        assert "False" == loads(rv.data)['status']
 
     def test_check_history(self):
         self.client.post('/set/up/', data=dict(value="True"))
