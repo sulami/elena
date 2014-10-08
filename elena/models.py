@@ -30,27 +30,33 @@ class Status(Database.Base):
         self.update(status)
 
     def __repr__(self):
-        return self.data_points.first().__repr__()
+        return self.__get__().__repr__()
+
+    def __get__(self):
+        return self.data_points.first()
+
+    def __pull__(self):
+        # TODO actually pull the status
+        pass
 
     def set_history(self, history):
         self.history = history
         if not history:
-            self.data_points = self.data_points.first()
+            self.data_points = self.__get__()
 
     def update(self, status):
         if not self.history:
-            d = self.data_points.first()
+            d = self.__get__()
             if d:
                 d.update(status)
                 return
         self.data_points.append(DataPoint(self, status))
 
     def get(self):
-        if self.pull and datetime.now() - self.update_time > self.pull_time:
-            # TODO pull status
-            pass
-        status = self.data_points.first()
-        return status.get()
+        if self.pull and (datetime.now() - self.__get__().update_time
+                          > self.pull_time):
+            self.__pull__()
+        return self.__get__().get()
 
     def get_history(self):
         if self.history:
@@ -69,7 +75,7 @@ class Status(Database.Base):
         self.pull_time = None
 
 class DataPoint(Database.Base):
-    """datapoint for history creation"""
+    """Datapoint for history creation"""
 
     __tablename__ = 'hist'
     id = Column(Integer, primary_key=True)
