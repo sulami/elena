@@ -17,7 +17,11 @@ def shutdown_session(exception=None):
 
 @app.route("/")
 def index():
-    return "Are you still there?"
+    status = Status.query.all()
+    r = ''
+    for s in status:
+        r += s.__repr__() + "\n"
+    return r
 
 @app.route("/set/<string:name>/", methods=['POST'])
 def set_status(name):
