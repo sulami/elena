@@ -146,14 +146,16 @@ class HistoryTestCase(BasicTestCase):
         self.client.post('/set/up/', data=dict(value="False"))
         rv = self.client.get('/his/up/')
         assert 200 == rv.status_code
-        assert "True" in rv.data
-        assert "False" in rv.data
+        assert 2 == len(loads(rv.data)['history'])
+        assert "True" == loads(rv.data)['history'][1]['status']
+        assert "False" == loads(rv.data)['history'][0]['status']
 
         rv = self.client.post('/atr/up/', data=dict(history="False"))
         assert 200 == rv.status_code
         rv = self.client.get('/his/up/')
+        assert "history" not in rv.data
         assert "True" not in rv.data
-        assert "False" in rv.data
+        assert "False" == loads(rv.data)['status']
 
 if __name__ == "__main__":
     unittest.main()
