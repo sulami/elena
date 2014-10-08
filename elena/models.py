@@ -35,7 +35,7 @@ class Status(Database.Base):
 
     def update(self, status):
         self.status = status
-        update_time = Column(DateTime)
+        self.update_time = datetime.now()
 
     def get(self):
         if self.pull and datetime.now() - self.update_time > self.pull_time:
