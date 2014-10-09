@@ -26,9 +26,9 @@ class Status(Database.Base):
     pull_url = Column(String(200))
     pull_time = Column(Interval)
 
-    def __init__(self, name, status):
+    def __init__(self, name, value):
         self.name = name
-        self.update(status)
+        self.update(value)
 
     def __repr__(self):
         return self.__get__().__repr__()
@@ -36,13 +36,13 @@ class Status(Database.Base):
     def __get__(self):
         return self.data_points.first()
 
-    def update(self, status):
+    def update(self, value):
         if not self.history:
             d = self.__get__()
             if d:
-                d.update(status)
+                d.update(value)
                 return
-        self.data_points.append(DataPoint(self, status))
+        self.data_points.append(DataPoint(self, value))
 
     def get(self):
         return self.__get__().get()
@@ -76,26 +76,26 @@ class DataPoint(Database.Base):
     __tablename__ = 'hist'
     id = Column(Integer, primary_key=True)
     status_name = Column(String(50), ForeignKey('stati.name'))
-    status = Column(String(12))
+    value = Column(String(12))
     update_time = Column(DateTime)
 
     def __init__(self, status, value):
-        self.status_id = status.name
+        self.status_name = status.name
         self.update(value)
 
     def __repr__(self):
         return '[{}] {}: {}'.format(
                                 self.update_time.strftime('%Y-%m-%d %H:%M:%S'),
-                                self.status_name, self.status)
+                                self.status_name, self.value)
 
     def update(self, value):
-        self.status = value
+        self.value = value
         self.update_time = datetime.now()
 
     def get(self):
-        return jsonify(name=self.status_name, status=self.status,
+        return jsonify(name=self.status_name, status=self.value,
                        update_time=self.update_time)
 
     def serialize(self):
-        return { 'status': self.status, 'update_time': self.update_time }
+        return { 'status': self.value, 'update_time': self.update_time }
 
