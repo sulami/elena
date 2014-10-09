@@ -31,7 +31,7 @@ def set_status(name):
     value = request.form['value']
     status = Status.query.get(name)
     if status:
-        status.update(value)
+        status.set(value)
     else:
         status = Status(name, value)
     app.db.session.add(status)

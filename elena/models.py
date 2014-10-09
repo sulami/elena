@@ -28,24 +28,21 @@ class Status(Database.Base):
 
     def __init__(self, name, value):
         self.name = name
-        self.update(value)
+        self.set(value)
 
-    def __repr__(self):
-        return self.__get__().__repr__()
-
-    def __get__(self):
+    def get_recent(self):
         return self.data_points.first()
 
-    def update(self, value):
+    def set(self, value):
         if not self.history:
-            d = self.__get__()
+            d = self.get_recent()
             if d:
-                d.update(value)
+                d.set(value)
                 return
         self.data_points.append(DataPoint(self, value))
 
     def get(self):
-        return self.__get__().get()
+        return self.get_recent().get()
 
     def get_history(self):
         if self.history:
@@ -55,9 +52,9 @@ class Status(Database.Base):
 
     def pull_update(self):
         try:
-            self.update(urlopen(Request(self.pull_url), timeout=2).readline())
+            self.set(urlopen(Request(self.pull_url), timeout=2).readline())
         except:
-            self.update("Error pulling status update from {}"
+            self.set("Error pulling status update from {}"
                         .format(self.pull_url))
 
 class DataPoint(Database.Base):
@@ -71,14 +68,9 @@ class DataPoint(Database.Base):
 
     def __init__(self, status, value):
         self.status_name = status.name
-        self.update(value)
+        self.set(value)
 
-    def __repr__(self):
-        return '[{}] {}: {}'.format(
-                                self.update_time.strftime('%Y-%m-%d %H:%M:%S'),
-                                self.status_name, self.value)
-
-    def update(self, value):
+    def set(self, value):
         self.value = value
         self.update_time = datetime.now()
 
