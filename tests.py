@@ -161,6 +161,13 @@ class HistoryTestCase(BasicTestCase):
         assert "True" not in rv.data
         assert "False" == loads(rv.data)['status']
 
+        rv = self.client.post('/atr/up/', data=dict(history="True"))
+        assert 200 == rv.status_code
+        rv = self.client.get('/his/up/')
+        assert 200 == rv.status_code
+        assert 1 == len(loads(rv.data)['history'])
+        assert "False" == loads(rv.data)['history'][0]['status']
+
 class PullTestCase(BasicTestCase):
     """Test the status pull functionality"""
 

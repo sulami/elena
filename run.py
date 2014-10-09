@@ -78,6 +78,8 @@ def set_attr(name):
     if 'history' in request.form:
         valid = True
         status.history = str_to_bool(request.form['history'])
+        for d in status.data_points.offset(1):
+            app.db.session.delete(d)
     if 'pull' in request.form:
         valid = True
         if str_to_bool(request.form['pull']):

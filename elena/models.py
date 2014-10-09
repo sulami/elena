@@ -20,7 +20,7 @@ class Status(Database.Base):
     name = Column(String(50), primary_key=True)
     history = Column(Boolean)
     data_points = relationship('DataPoint', order_by=desc('update_time'),
-                               lazy='dynamic',
+                               lazy='dynamic', backref='status',
                                cascade='all, delete, delete-orphan')
     pull = Column(Boolean)
     pull_url = Column(String(200))
