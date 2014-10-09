@@ -192,6 +192,7 @@ class PullTestCase(BasicTestCase):
 
     def server_wait(self):
         server = HTTPServer(('', 5001), self.pullHandler)
+        server.timeout = 3 # Just die if the test fails or takes too long
         server.handle_request()
         server.socket.close()
 
