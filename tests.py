@@ -1,3 +1,4 @@
+import sys
 import time
 import unittest
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
@@ -207,6 +208,17 @@ class PullTestCase(BasicTestCase):
         rv = self.client.get('/get/up/')
         self.assertEqual(200, rv.status_code)
         self.assertEqual("Toast", loads(rv.data)['status'])
+
+class PerformanceTestCase(BasicTestCase):
+    """Various performance tests"""
+
+    @unittest.skipUnless('PerformanceTestCase' in sys.argv,
+                         "We do not need this test by default")
+    def test_lots_of_updates(self):
+        for i in xrange(1000):
+            self.client.post('/set/' + str(i) + '/', data=dict(value=i))
+        for i in xrange(1000):
+            rv = self.client.get('/get/' + str(i) + '/')
 
 if __name__ == "__main__":
     unittest.main()
