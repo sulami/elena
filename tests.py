@@ -14,6 +14,8 @@ from run import app, init_db
 class BasicTestCase(unittest.TestCase):
     """Unify setup and teardown, verify server starts up"""
 
+    longMessage = True
+
     def setUp(self):
         app.config.from_object('config.TestConfig')
         init_db()
@@ -29,52 +31,52 @@ class StatusTestCase(BasicTestCase):
     """Test basic status operations"""
 
     def test_status_creation(self):
-        return self.client.post('/set/up/', data=dict(value="True"))
-        assert 201 == rv.status_code
+        rv = self.client.post('/set/up/', data=dict(value="True"))
+        self.assertEqual(201, rv.status_code)
 
     def test_status_existence(self):
         rv = self.client.post('/set/up/', data=dict(value="True"))
-        assert 201 == rv.status_code
+        self.assertEqual(201, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert "True" == loads(rv.data)['status']
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
+        self.assertEqual("True", loads(rv.data)['status'])
 
     def test_status_nonexistence(self):
         rv = self.client.get('/get/notup/')
-        assert 404 == rv.status_code
+        self.assertEqual(404, rv.status_code)
 
     def test_status_update(self):
         rv = self.client.post('/set/up/', data=dict(value="True"))
-        assert 201 == rv.status_code
+        self.assertEqual(201, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert "True" == loads(rv.data)['status']
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
+        self.assertEqual("True", loads(rv.data)['status'])
 
         rv = self.client.post('/set/up/', data=dict(value="False"))
-        assert 201 == rv.status_code
+        self.assertEqual(201, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert "False" == loads(rv.data)['status']
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
+        self.assertEqual("False", loads(rv.data)['status'])
 
     def test_status_deletion(self):
         rv = self.client.post('/set/up/', data=dict(value="True"))
-        assert 201 == rv.status_code
+        self.assertEqual(201, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert "True" == loads(rv.data)['status']
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
+        self.assertEqual("True", loads(rv.data)['status'])
 
         rv = self.client.get('/del/up/')
-        assert 204 == rv.status_code
+        self.assertEqual(204, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert 404 == rv.status_code
+        self.assertEqual(404, rv.status_code)
 
         rv = self.client.get('/del/up/')
-        assert 404 == rv.status_code
+        self.assertEqual(404, rv.status_code)
 
     def test_status_timestamp(self):
         self.client.post('/set/up/', data=dict(value="True"))
@@ -85,88 +87,96 @@ class StatusTestCase(BasicTestCase):
         self.client.post('/set/up/', data=dict(value="True"))
         new = loads(self.client.get('/get/up/').data)['update_time']
 
-        assert old != new
+        self.assertNotEqual(old, new)
 
 class MetaTestCase(BasicTestCase):
     """Test general function"""
 
+    def test_overview_page(self):
+        rv = self.client.get('/all/')
+        self.assertEqual(200, rv.status_code)
+
     def test_status_page(self):
         rv = self.client.get('/status/')
-        assert "0" in rv.data
+        self.assertIn("0", rv.data)
 
         self.client.post('/set/up/', data=dict(value="True"))
         rv = self.client.get('/status/')
-        assert "1" in rv.data
+        self.assertEqual(200, rv.status_code)
+        self.assertIn("1", rv.data)
 
         self.client.post('/set/down/', data=dict(value="False"))
         rv = self.client.get('/status/')
-        assert "2" in rv.data
+        self.assertEqual(200, rv.status_code)
+        self.assertIn("2", rv.data)
 
         self.client.post('/set/down/', data=dict(value="True"))
         rv = self.client.get('/status/')
-        assert "2" in rv.data
+        self.assertEqual(200, rv.status_code)
+        self.assertIn("2", rv.data)
 
         self.client.get('/del/down/')
         rv = self.client.get('/status/')
-        assert "1" in rv.data
+        self.assertEqual(200, rv.status_code)
+        self.assertIn("1", rv.data)
 
 class HistoryTestCase(BasicTestCase):
     """Test the status history functionality"""
 
     def test_history_disabled(self):
         rv = self.client.post('/set/up/', data=dict(value="True"))
-        assert 201 == rv.status_code
+        self.assertEqual(201, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert "True" == loads(rv.data)['status']
-        assert 200 == rv.status_code
+        self.assertEqual("True", loads(rv.data)['status'])
+        self.assertEqual(200, rv.status_code)
 
         rv = self.client.post('/set/up/', data=dict(value="False"))
-        assert 201 == rv.status_code
+        self.assertEqual(201, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert "False" == loads(rv.data)['status']
-        assert 200 == rv.status_code
-        assert "history" not in rv.data
-        assert "True" not in rv.data
-        assert "False" == loads(rv.data)['status']
+        self.assertEqual("False", loads(rv.data)['status'])
+        self.assertEqual(200, rv.status_code)
+        self.assertNotIn("history", rv.data)
+        self.assertNotIn("True", rv.data)
+        self.assertEqual("False",loads(rv.data)['status'])
 
     def test_check_history(self):
         self.client.post('/set/up/', data=dict(value="True"))
         rv = self.client.post('/atr/up/', data=dict(history="True"))
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
 
         self.client.post('/set/up/', data=dict(value="False"))
         rv = self.client.get('/his/up/')
-        assert 200 == rv.status_code
-        assert "True" in rv.data
-        assert "False" in rv.data
+        self.assertEqual(200, rv.status_code)
+        self.assertIn("True", rv.data)
+        self.assertIn("False", rv.data)
 
     def test_delete_history(self):
         self.client.post('/set/up/', data=dict(value="True"))
         rv = self.client.post('/atr/up/', data=dict(history="True"))
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
 
         self.client.post('/set/up/', data=dict(value="False"))
         rv = self.client.get('/his/up/')
-        assert 200 == rv.status_code
-        assert 2 == len(loads(rv.data)['history'])
-        assert "True" == loads(rv.data)['history'][1]['status']
-        assert "False" == loads(rv.data)['history'][0]['status']
+        self.assertEqual(200, rv.status_code)
+        self.assertEqual(2, len(loads(rv.data)['history']))
+        self.assertEqual("True", loads(rv.data)['history'][1]['status'])
+        self.assertEqual("False", loads(rv.data)['history'][0]['status'])
 
         rv = self.client.post('/atr/up/', data=dict(history="False"))
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
         rv = self.client.get('/his/up/')
-        assert "history" not in rv.data
-        assert "True" not in rv.data
-        assert "False" == loads(rv.data)['status']
+        self.assertNotIn("history", rv.data)
+        self.assertNotIn("True", rv.data)
+        self.assertEqual("False", loads(rv.data)['status'])
 
         rv = self.client.post('/atr/up/', data=dict(history="True"))
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
         rv = self.client.get('/his/up/')
-        assert 200 == rv.status_code
-        assert 1 == len(loads(rv.data)['history'])
-        assert "False" == loads(rv.data)['history'][0]['status']
+        self.assertEqual(200, rv.status_code)
+        self.assertEqual(1, len(loads(rv.data)['history']))
+        self.assertEqual("False", loads(rv.data)['history'][0]['status'])
 
 class PullTestCase(BasicTestCase):
     """Test the status pull functionality"""
@@ -196,11 +206,11 @@ class PullTestCase(BasicTestCase):
         rv = self.client.post('/atr/up/', data=dict(pull="True",
                                             pull_url='http://localhost:5001',
                                             pull_time="0"))
-        assert 200 == rv.status_code
+        self.assertEqual(200, rv.status_code)
 
         rv = self.client.get('/get/up/')
-        assert 200 == rv.status_code
-        assert "Toast" == loads(rv.data)['status']
+        self.assertEqual(200, rv.status_code)
+        self.assertEqual("Toast", loads(rv.data)['status'])
 
 if __name__ == "__main__":
     unittest.main()
