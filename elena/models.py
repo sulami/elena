@@ -60,16 +60,6 @@ class Status(Database.Base):
             self.update("Error pulling status update from {}"
                         .format(self.pull_url))
 
-    def set_pull(self, url, time):
-        self.pull = True
-        self.pull_url = url
-        self.pull_time = timedelta(seconds=time)
-
-    def set_push(self):
-        self.pull = False
-        self.pull_url = None
-        self.pull_time = None
-
 class DataPoint(Database.Base):
     """Datapoint for history creation"""
 

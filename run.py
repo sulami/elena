@@ -84,20 +84,16 @@ def set_attr(name):
         valid = True
         if str_to_bool(request.form['pull']):
             if 'pull_url' in request.form:
-                pu = request.form['pull_url']
-            elif status.pull_url:
-                pu = status.pull_url
-            else:
+                status.pull_url = request.form['pull_url']
+            elif not status.pull_url:
                 return "ERROR: No URL to pull from given or present", 400
             if 'pull_time' in request.form:
-                pt = int(request.form['pull_time'])
-            elif status.pull_time:
-                pt = status.pull_time
-            else:
+                status.pull_time = timedelta(0, int(request.form['pull_time']))
+            elif not status.pull_time:
                 return "ERROR: No pull interval given or present", 400
-            status.set_pull(pu, pt)
+            status.pull = True
         else:
-            status.set_push()
+            status.pull = False
     else:
         if 'pull_url' in request.form:
             valid = True
