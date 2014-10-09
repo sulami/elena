@@ -92,10 +92,6 @@ class StatusTestCase(BasicTestCase):
 class MetaTestCase(BasicTestCase):
     """Test general function"""
 
-    def test_overview_page(self):
-        rv = self.client.get('/all/')
-        self.assertEqual(200, rv.status_code)
-
     def test_status_page(self):
         rv = self.client.get('/status/')
         self.assertIn("0", rv.data)
