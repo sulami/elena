@@ -217,9 +217,9 @@ class PerformanceTestCase(BasicTestCase):
                          "We do not need this test by default")
     def test_lots_of_updates(self):
         for i in xrange(1000):
-            self.client.post('/set/' + str(i) + '/', data=dict(value=i))
+            self.client.post('/set/{}/'.format(i), data=dict(value=i))
         for i in xrange(1000):
-            rv = self.client.get('/get/' + str(i) + '/')
+            rv = self.client.get('/get/{}/'.format(i))
 
 if __name__ == "__main__":
     unittest.main()
